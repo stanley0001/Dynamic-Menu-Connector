@@ -1,9 +1,10 @@
 package com.example.communication.whatsapp.services.impl;
 
-import com.example.communication.menu.persistence.entities.Sessions;
+import com.example.communication.shared.persistance.entities.Sessions;
 import com.example.communication.menu.persistence.models.Menu;
 import com.example.communication.menu.services.MenuService;
-import com.example.communication.shared.ResponseModel;
+import com.example.communication.shared.persistance.models.ResponseModel;
+import com.example.communication.shared.services.SessionService;
 import com.example.communication.whatsapp.persistance.entities.Conversation;
 import com.example.communication.whatsapp.persistance.models.*;
 import com.example.communication.whatsapp.persistance.repositories.ConversationRepository;
@@ -36,6 +37,8 @@ public class MetaClient implements MetaService {
     ConversationRepository conversationRepository;
     @Autowired
     MenuService menuService;
+    @Autowired
+    SessionService sessionService;
     public void webHook(String whatsAppMessage){
         try {
             WebHook webHook=objectMapper.readValue(whatsAppMessage, WebHook.class);
@@ -86,7 +89,7 @@ public class MetaClient implements MetaService {
     private String getMenu(String phone,String command,String user){
         Sessions session=new Sessions();
         Menu menu=null;
-        ResponseModel activeSession=menuService.getMostRecentSession(phone);
+        ResponseModel activeSession=sessionService.getMostRecentSession(phone);
         if (activeSession.getStatus().equalsIgnoreCase("200")){
             //use the current session
             session=modelMapper.map(activeSession.getBody(),Sessions.class);
@@ -101,7 +104,7 @@ public class MetaClient implements MetaService {
         }else {
             //create a new session
             session.setPhone(phone);
-            menuService.createSession(session);
+            sessionService.createSession(session);
             //show default menu
             return "Welcome "+user+", Choose a menu to proceed \n"+modelMapper.map(menuService.getDefaultMenu().getBody(), Menu.class).getMenuValue();
         }
@@ -119,7 +122,7 @@ public class MetaClient implements MetaService {
    }
    private String getToken(){
         //TODO:meta authentication to be added here
-        return "EAAPeqX2f6msBAAF53eZBfAA4RlO8qCUQSZCkFeYxNRuPQk3JgJe7qeWU46EHjQ13J8Q8eY3DFCPEJnVsNNYp0FwWuiazjeX3GfsxkgUZCViELTbzGp8pUMZCa9s5oRqQaNMrvzCjk8g8yAHNSitVCAV7m57VgcAlxrEeRKN8rtVYrvk7wDMekpfSwC4i4acxquZCT0sYr8GAiNoAajc0RTqy4mib3j0kZD";
+        return "EAAPeqX2f6msBAN0P8rwemudIqDyIkg09TijfT5Wtt1wq1Ls4BZCZBtBBuqb34L5zLF0qbdWjoNmaEfoIXEqmUeLLqwnf6apoQmHohtJqjXii3q7kej7ZCcqtWDDvCzbn4EePzkkLPqiRRFYzRkuqZAScJPdsDIxql78wEmFHCnFwY8wXrbjEc5GdT0J2gedA3ziNLjhaaJRnt9UT3liFCOkH8ZBcCXEgZD";
    }
    private void sendWhatsappMessage(String instanceId,String to,String message){
         String token=this.getToken();

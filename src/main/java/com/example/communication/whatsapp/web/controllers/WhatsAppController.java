@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("whatsapp")
 public class WhatsAppController {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     MetaService metaService;
     @GetMapping("webhook")

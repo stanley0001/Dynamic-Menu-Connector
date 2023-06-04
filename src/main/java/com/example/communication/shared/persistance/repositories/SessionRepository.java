@@ -1,6 +1,6 @@
-package com.example.communication.menu.persistence.repositories;
+package com.example.communication.shared.persistance.repositories;
 
-import com.example.communication.menu.persistence.entities.Sessions;
+import com.example.communication.shared.persistance.entities.Sessions;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

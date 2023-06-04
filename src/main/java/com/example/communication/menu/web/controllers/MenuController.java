@@ -2,8 +2,8 @@ package com.example.communication.menu.web.controllers;
 
 import com.example.communication.menu.persistence.entities.Menus;
 import com.example.communication.menu.persistence.entities.Options;
-import com.example.communication.menu.persistence.entities.Sessions;
-import com.example.communication.shared.ResponseModel;
+import com.example.communication.shared.persistance.entities.Sessions;
+import com.example.communication.shared.persistance.models.ResponseModel;
 import com.example.communication.menu.services.MenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +34,19 @@ public class MenuController {
         ResponseModel response=menuService.createMenu(menu);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PutMapping("updateMenu")
+    public ResponseEntity<ResponseModel> updateMenu(@RequestBody Menus menu){
+        ResponseModel response=menuService.updateMenu(menu);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     @PostMapping("createOption")
     public ResponseEntity<ResponseModel> createOption(@RequestBody Options option){
         ResponseModel response=menuService.createOption(option);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("getMenuOption")
-    public ResponseEntity<ResponseModel> getMenuOption(@RequestParam String menu,@RequestParam String option){
-        ResponseModel response=menuService.getOption(menu, option);
+    public ResponseEntity<ResponseModel> getMenuOption(@RequestBody Sessions session,@RequestParam String option){
+        ResponseModel response=menuService.getOption(session, option);
         log.info("controller response {}",response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -50,14 +55,5 @@ public class MenuController {
         ResponseModel response=menuService.getAllOptions(page,limit);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @PostMapping("createSession")
-    public ResponseEntity<ResponseModel> createSession(@RequestBody Sessions session){
-        ResponseModel response=menuService.createSession(session);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-    @GetMapping("getRecentActiveSession")
-    public ResponseEntity<ResponseModel> getRecentActiveSession(@RequestParam String phone){
-        ResponseModel response=menuService.getMostRecentSession(phone);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+
 }

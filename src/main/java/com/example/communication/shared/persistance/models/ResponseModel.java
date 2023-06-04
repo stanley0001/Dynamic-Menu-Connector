@@ -1,4 +1,4 @@
-package com.example.communication.shared;
+package com.example.communication.shared.persistance.models;
 
 import lombok.Data;
 

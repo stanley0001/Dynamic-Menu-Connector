@@ -1,26 +1,27 @@
-package com.example.communication.menu.persistence.entities;
+package com.example.communication.journey.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
-public class Sessions {
+public class Journey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private String phone;
-    private String previousMenu;
-    private String currentMenu;
+    private String name;
+    private String submissionUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @OneToMany
+    private List<Question> Questions;
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 }
+
