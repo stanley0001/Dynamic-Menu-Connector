@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public class MenuServiceImpl implements MenuService {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     ModelMapper mapper=new ModelMapper();
     @Autowired
     MenuRepository menuRepository;
@@ -90,6 +89,10 @@ public class MenuServiceImpl implements MenuService {
         return response;
     }
     public ResponseModel getOption(Sessions session,String option){
+        if (option.equalsIgnoreCase("0"))
+            return this.getMenuByName(session.getPreviousMenu());
+        if (option.equalsIgnoreCase("000"))
+            return sessionService.closeSession(session);
         ResponseModel response=new ResponseModel();
         if (option.equalsIgnoreCase("00")){
             Menu displayMenu=mapper.map(this.getDefaultMenu().getBody(),Menu.class);
@@ -98,6 +101,8 @@ public class MenuServiceImpl implements MenuService {
             response.setBody(displayMenu);
             return response;
         }
+        if (session.getIsAnsweringQuestions())
+            return journeyService.handleRequest(session.getId(),option);
         Optional<Options> menuOption=optionsRepository.findByMenuAndOption(session.getCurrentMenu(),option);
         if (menuOption.isPresent()){
             if (menuOption.get().getIsJourney())
@@ -123,16 +128,8 @@ public class MenuServiceImpl implements MenuService {
         return response;
     }
     public ResponseModel getOption(Long sessionId,String command){
-        Optional<Sessions> optionalSession=sessionService.findSessionById(sessionId);
-        Sessions session=optionalSession.get();
-        ResponseModel response=null;
-        if (command.equalsIgnoreCase("0"))
-            response=this.getMenuByName(session.getPreviousMenu());
-        if (command.equalsIgnoreCase("000"))
-            return sessionService.closeSession(session);
-        if (session.getIsAnsweringQuestions())
-            return journeyService.handleRequest(session.getId(),command);
-        response=this.getOption(session,command);
+        Sessions session=sessionService.findSessionById(sessionId);
+        ResponseModel response=this.getOption(session,command);
         if (response.getStatus().equalsIgnoreCase("200")){
             //update menus
             session.setPreviousMenu(session.getCurrentMenu());

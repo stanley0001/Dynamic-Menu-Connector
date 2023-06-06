@@ -3,7 +3,9 @@ package com.example.communication.whatsapp.services.impl;
 import com.example.communication.shared.persistance.entities.Sessions;
 import com.example.communication.menu.persistence.models.Menu;
 import com.example.communication.menu.services.MenuService;
+import com.example.communication.shared.persistance.models.PostEntity;
 import com.example.communication.shared.persistance.models.ResponseModel;
+import com.example.communication.shared.services.RestEntity;
 import com.example.communication.shared.services.SessionService;
 import com.example.communication.whatsapp.persistance.entities.Conversation;
 import com.example.communication.whatsapp.persistance.models.*;
@@ -27,7 +29,7 @@ import java.util.List;
 
 @Service
 @EnableAsync
-public class MetaClient implements MetaService {
+public class MetaClient<T> implements MetaService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String faceBookResourceUrl = "https://graph.facebook.com/v16.0/";
     private static final String instanceId = "109266945127952";
@@ -39,6 +41,8 @@ public class MetaClient implements MetaService {
     MenuService menuService;
     @Autowired
     SessionService sessionService;
+    @Autowired
+    RestEntity restEntity;
     public void webHook(String whatsAppMessage){
         try {
             WebHook webHook=objectMapper.readValue(whatsAppMessage, WebHook.class);
@@ -81,7 +85,12 @@ public class MetaClient implements MetaService {
     }
     @Async
     private void userInteraction(String phone,String message,String user){
-        String displayString=this.getMenu(phone,message,user)+"\n00.Home \n000.logout";
+        String footer="\n00.Home \n000.logout";
+        if (message.equalsIgnoreCase("000")){
+            footer="";
+        }
+
+        String displayString=this.getMenu(phone,message,user)+footer;
         //save message and send response to user
         //TODO:save the response
         this.sendWhatsappMessage(this.instanceId,phone,displayString);
@@ -122,25 +131,19 @@ public class MetaClient implements MetaService {
    }
    private String getToken(){
         //TODO:meta authentication to be added here
-        return "EAAPeqX2f6msBAN0P8rwemudIqDyIkg09TijfT5Wtt1wq1Ls4BZCZBtBBuqb34L5zLF0qbdWjoNmaEfoIXEqmUeLLqwnf6apoQmHohtJqjXii3q7kej7ZCcqtWDDvCzbn4EePzkkLPqiRRFYzRkuqZAScJPdsDIxql78wEmFHCnFwY8wXrbjEc5GdT0J2gedA3ziNLjhaaJRnt9UT3liFCOkH8ZBcCXEgZD";
+        return "EAAPeqX2f6msBAC3bhCbavD7QpDz4aFZCZAu3yuCaCIe0c2jA9VfaagqmyzSNOoWnkiTsgugPdlH1mHZCbMh6Q4DV0MzVpxAkAFJOad4czIL8gzGZAHxbHx7KwHILi99f0LmhydnkMPKTgAYchKZCNAatExNbwxWCZCRUbjUZA1uXlDFuYzDuArmKgtZC5dmmfAHJeHEDjIjE2wp3k1BnPX1tS1tleM8QMvoZD";
    }
    private void sendWhatsappMessage(String instanceId,String to,String message){
-        String token=this.getToken();
-       RestTemplate restTemplate = new RestTemplate();
-       // Set the request URL
-       String baseUrl =faceBookResourceUrl;
-       String endpoint = instanceId+"/messages";
-
-       // Build the complete URL with parameters
-       UriComponents uriComponents = UriComponentsBuilder
-               .fromHttpUrl(baseUrl)
-               .path(endpoint)
-               .build();
+       String token=this.getToken();
+       PostEntity postEntity=new PostEntity();
+       postEntity.setUrl(faceBookResourceUrl);
+       postEntity.setEndpoint(instanceId+"/messages");
 
        // Set the request headers
        HttpHeaders headers = new HttpHeaders();
        headers.setContentType(MediaType.APPLICATION_JSON);
        headers.set("Authorization", "Bearer "+token);
+       postEntity.setHeaders(headers);
        //create http request body
        RequestText text=new RequestText();
        text.setBody(message);
@@ -156,12 +159,8 @@ public class MetaClient implements MetaService {
         * "{\"messaging_product\": \"whatsapp\", \"to\": \"254743696250\", \"type\": \"template\", \"template\": { \"name\": \"hello_world\", \"language\": { \"code\": \"en_US\" } } }";
         *
         */
-       // Create the HTTP entity with headers and body
-       HttpEntity<WhatsAppRequest> entity = new HttpEntity<>(requestBody, headers);
-
-       // Send the POST request
-       ResponseEntity<String> response = restTemplate.exchange(uriComponents.toUri(), HttpMethod.POST, entity, String.class);
-
+       postEntity.setBody(requestBody);
+       ResponseEntity<T> response=restEntity.post(postEntity);
        // Print the response
        log.info("Message sent with status code: {} ,message: {}",response.getStatusCode(),response.getBody());
    }

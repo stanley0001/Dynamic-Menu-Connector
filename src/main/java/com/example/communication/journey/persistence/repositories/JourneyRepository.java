@@ -3,6 +3,8 @@ package com.example.communication.journey.persistence.repositories;
 import com.example.communication.journey.persistence.entities.Journey;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface JourneyRepository extends JpaRepository<Journey,Long> {
-    Journey findByName(String text);
+    Optional<Journey> findByName(String text);
 }

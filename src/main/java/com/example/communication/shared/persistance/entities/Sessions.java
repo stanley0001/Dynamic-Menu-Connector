@@ -15,6 +15,9 @@ public class Sessions {
     @Column(nullable = false)
     private String phone;
     private String previousMenu;
+    private String ussdSessionId;
+    private Boolean active;
+
     private String currentMenu;
     private Boolean isAnsweringQuestions;
     private Long journey;

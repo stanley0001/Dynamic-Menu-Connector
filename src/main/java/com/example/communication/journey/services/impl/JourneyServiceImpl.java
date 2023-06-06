@@ -8,13 +8,17 @@ import com.example.communication.journey.persistence.repositories.QuestionsRepos
 import com.example.communication.journey.persistence.repositories.UserResponseRepository;
 import com.example.communication.journey.services.JourneyService;
 import com.example.communication.shared.persistance.entities.Sessions;
+import com.example.communication.shared.persistance.models.PostEntity;
 import com.example.communication.shared.persistance.models.ResponseModel;
+import com.example.communication.shared.services.RestEntity;
 import com.example.communication.shared.services.SessionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -32,8 +36,9 @@ public class JourneyServiceImpl implements JourneyService {
     JourneyRepository journeyRepository;
     @Autowired
     UserResponseRepository userResponseRepository;
+    @Autowired
+    RestEntity<?> restEntity;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
 
     public ResponseModel createQuestion(Question question){
         ResponseModel response=new ResponseModel();
@@ -127,15 +132,20 @@ public class JourneyServiceImpl implements JourneyService {
             return journey.get();
         return null;
     }
+    public Journey getJourneyByName(String name){
+        Optional<Journey> journey=journeyRepository.findByName(name);
+        if (journey.isPresent())
+            return journey.get();
+        return null;
+    }
     public ResponseModel handleRequest(Long sessionId,String text) {
         ResponseModel responseModel=new ResponseModel();
         // Retrieve or create the user's session
-        Sessions session = sessionService.findSessionById(sessionId).get();
+        Sessions session = sessionService.findSessionById(sessionId);
 
         // Check if the session is in the process of answering questions
         if (session.getIsAnsweringQuestions()) {
             // Save the user's response to the current question
-            log.info("ans? {}, currentQuestionId {}",session.getIsAnsweringQuestions(),session.getCurrentQuestion());
             Question currentQuestion = this.getQuestionById(session.getCurrentQuestion());
             UserResponse response = new UserResponse();
             response.setSessionId(session.getId());
@@ -149,14 +159,12 @@ public class JourneyServiceImpl implements JourneyService {
             int currentIndex = questions.indexOf(currentQuestion);
             if (currentIndex == questions.size() - 1) {
                 List<UserResponse> userResponses = userResponseRepository.getBySessionId(session.getId());
-                log.info("responses: {}",userResponses);
                 Map<String, String> payload = new HashMap<>();
                 for (UserResponse currentResponse : userResponses) {
                     String fieldName = currentResponse.getQuestion().getFieldName();
                     String value = currentResponse.getResponse();
                     payload.put(fieldName, value);
                 }
-                log.info("raw payload {}",payload);
                 ObjectMapper mapper = new ObjectMapper();
                 String jsonPayload=null;
                 try {
@@ -165,12 +173,20 @@ public class JourneyServiceImpl implements JourneyService {
                     log.error("Error forming json payload: {}",e.getMessage());
                 }
                 //http request to submit data
-                //TODO: abstract http method
                 log.info("formed json payload {}",jsonPayload);
+                PostEntity postEntity=new PostEntity();
+                postEntity.setUrl(this.getJourneyById(this.getJourneyById(session.getJourney()).getId()).getSubmissionUrl());
+                postEntity.setEndpoint("");
+                // Set the request headers
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                postEntity.setHeaders(headers);
+                postEntity.setBody(jsonPayload);
+                restEntity.post(postEntity);
                 session.setIsAnsweringQuestions(false);
                 sessionService.updateSession(session);
                 responseModel.setStatus("301");
-                responseModel.setMessage("Thank you for completing the journey!");
+                responseModel.setMessage("Thank you!");
                 return responseModel;
             } else {
                 // Move to the next question
@@ -183,7 +199,7 @@ public class JourneyServiceImpl implements JourneyService {
             }
         }else {
             // Not currently answering questions, expect journey name
-            Journey journey = journeyRepository.findByName(text);
+            Journey journey = this.getJourneyByName(text);
             if (journey != null) {
                 Question currentQuestion=journey.getQuestions().get(0);
                 session.setJourney(journey.getId());

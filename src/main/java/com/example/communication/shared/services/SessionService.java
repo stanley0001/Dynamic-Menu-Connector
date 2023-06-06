@@ -15,5 +15,5 @@ public interface SessionService {
 
     ResponseModel closeSession(Sessions session);
 
-    Optional<Sessions> findSessionById(Long sessionId);
+    Sessions findSessionById(Long sessionId);
 }
