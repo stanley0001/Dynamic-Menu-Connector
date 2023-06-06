@@ -1,6 +1,5 @@
 package com.example.communication.menu.services.imp;
 
-import com.example.communication.journey.persistence.entities.Journey;
 import com.example.communication.journey.services.JourneyService;
 import com.example.communication.menu.persistence.entities.Menus;
 import com.example.communication.menu.persistence.entities.Options;
@@ -9,12 +8,9 @@ import com.example.communication.menu.persistence.models.Menu;
 import com.example.communication.shared.persistance.models.ResponseModel;
 import com.example.communication.menu.persistence.repositories.MenuRepository;
 import com.example.communication.menu.persistence.repositories.OptionsRepository;
-import com.example.communication.shared.persistance.repositories.SessionRepository;
 import com.example.communication.menu.services.MenuService;
 import com.example.communication.shared.services.SessionService;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
