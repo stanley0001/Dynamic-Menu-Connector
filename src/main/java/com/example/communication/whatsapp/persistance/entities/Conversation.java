@@ -19,9 +19,23 @@ public class Conversation {
     private Boolean response;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+
+    public Conversation() {
+    }
+
+    public Conversation(String name, String phone, String messageId, String conversationId, String message, boolean response) {
+        this.name = name;
+        this.phone= phone;
+        this.message = message;
+        this.conversationId= conversationId;
+        this.externalId = messageId;
+        this.response = response;
+    }
+
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }

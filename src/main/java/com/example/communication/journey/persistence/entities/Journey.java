@@ -20,8 +20,8 @@ public class Journey {
     private List<Question> Questions;
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
 

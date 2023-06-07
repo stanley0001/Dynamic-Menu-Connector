@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class SessionController {
     @Autowired
     SessionService sessionService;
-    @PostMapping("createSession")
+    @PostMapping("create-session")
     public ResponseEntity<ResponseModel> createSession(@RequestBody Sessions session){
         ResponseModel response=sessionService.createSession(session);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    @GetMapping("getRecentActiveSession")
+    @GetMapping("gecent-active-session")
     public ResponseEntity<ResponseModel> getRecentActiveSession(@RequestParam String phone){
         ResponseModel response=sessionService.getMostRecentSession(phone);
         return new ResponseEntity<>(response, HttpStatus.OK);

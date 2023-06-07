@@ -14,12 +14,12 @@ public class Question {
     private String text;
     private String fieldName;
     private String fieldDataType;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
 

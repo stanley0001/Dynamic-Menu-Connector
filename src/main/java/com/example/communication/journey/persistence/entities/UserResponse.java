@@ -17,12 +17,12 @@ public class UserResponse {
     private Question question;
     private String response;
     private Long sessionId;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
 
