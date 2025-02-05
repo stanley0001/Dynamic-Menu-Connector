@@ -1,0 +1,12 @@
+# Use the official MinIO image from Docker Hub
+FROM minio/minio:latest
+
+# Set environment variables for MinIO configuration (optional)
+ENV MINIO_ROOT_USER=minioadmin
+ENV MINIO_ROOT_PASSWORD=minioadmin
+
+# Expose the necessary ports
+EXPOSE 9000 9001
+
+# Start MinIO server with a custom command (if any)
+CMD ["server", "/data"]

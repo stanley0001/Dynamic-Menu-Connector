@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .  # Path to your Spring Boot app
+      dockerfile: Dockerfile  # Explicitly specify the Dockerfile name
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/yourdb
+      - SPRING_DATASOURCE_USERNAME=youruser
+      - SPRING_DATASOURCE_PASSWORD=yourpassword
+    networks:
+      - app-network
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: stanjDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: burugu@1234
+    ports:
+      - "5434:5432" 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server --console-address ":9001" /data
+    volumes:
+      - miniodata:/data
+    networks:
+      - app-network
+
+  angular-admin:
+    build: .  # Path to your Angular app
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  frontend:
+    build: .  # Path to your Next.js app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  pgdata:
+  miniodata:

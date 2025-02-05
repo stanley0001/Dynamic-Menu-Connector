@@ -1,0 +1,19 @@
+# Build Stage
+FROM node:16-alpine as build-stage  # Or a suitable Node.js version
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN ng build --prod --base-href=/  # Important for routing; adjust if needed
+
+# Production Stage (Nginx)
+FROM nginx:alpine
+
+COPY --from=build-stage /app/dist/my-admin-portal /usr/share/nginx/html  # Replace with your Angular project name
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
