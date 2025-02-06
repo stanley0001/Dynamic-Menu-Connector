@@ -2,15 +2,14 @@ version: "3.8"
 
 services:
   backend:
-    build:
-      context: .  # Path to your Spring Boot app
-      dockerfile: Dockerfile  # Explicitly specify the Dockerfile name
+    image: jan
+    restart: always
     ports:
-      - "8080:8080"
+      - "9093:9093"
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/yourdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stanjDB
       - SPRING_DATASOURCE_USERNAME=youruser
       - SPRING_DATASOURCE_PASSWORD=yourpassword
     networks:
