@@ -10,8 +10,8 @@ services:
       - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stanjDB
-      - SPRING_DATASOURCE_USERNAME=youruser
-      - SPRING_DATASOURCE_PASSWORD=yourpassword
+      - SPRING_DATASOURCE_USERNAME=jburugu
+      - SPRING_DATASOURCE_PASSWORD=burugu@1234
     networks:
       - app-network
 
